@@ -1,0 +1,84 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Latest Repo
+        uses: actions/checkout@master
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:client"
+          file: Dockerfile.prod
+          push: true
+          tags: velfrr/multi-container-web-app-client:latest
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:server"
+          file: Dockerfile.prod
+          push: true
+          tags: velfrr/multi-container-web-app-server:latest
+
+      - name: Build and push worker image
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:worker"
+          file: Dockerfile.prod
+          push: true
+          tags: velfrr/multi-container-web-app-worker:latest
+
+      - name: Build and push nginx image
+        uses: docker/build-push-action@v2
+        with:
+          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:nginx"
+          file: Dockerfile.prod
+          push: true
+          tags: velfrr/multi-container-web-app-nginx:latest
+
+      # - name: Get Timestamp
+      #   uses: gerred/actions/current-time@master
+      #   id: current-time
+
+      # - name: Run String Replace
+      #   uses: frabert/replace-string-action@master
+      #   id: format-time
+      #   with:
+      #     pattern: '[:\.]+'
+      #     string: "${{ steps.current-time.outputs.time }}"
+      #     replace-with: "-"
+      #     flags: "g"
+
+      # - name: Rename docker-compose.prod.yml file to docker-compose.yml
+      #   run: mv docker-compose.prod.yml docker-compose.yml
+
+      # - name: Generate Deployment Package
+      #   run: zip -r deploy.zip *
+
+      # - name: Deploy to EB
+      #   uses: einaregilsson/beanstalk-deploy@v16
+      #   with:
+      #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     application_name: docker-react-app
+      #     environment_name: docker-react-app-env
+      #     version_label: "docker-app-${{ steps.format-time.outputs.replaced }}"
+      #     region: eu-north-1
+      #     deployment_package: deploy.zip
