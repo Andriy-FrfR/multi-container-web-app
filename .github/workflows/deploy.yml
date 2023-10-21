@@ -24,7 +24,7 @@ jobs:
       - name: Build and push client image
         uses: docker/build-push-action@v2
         with:
-          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:client"
+          context: "{{defaultContext}}:client"
           file: Dockerfile.prod
           push: true
           tags: velfrr/multi-container-web-app-client:latest
@@ -32,7 +32,7 @@ jobs:
       - name: Build and push server image
         uses: docker/build-push-action@v2
         with:
-          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:server"
+          context: "{{defaultContext}}:server"
           file: Dockerfile.prod
           push: true
           tags: velfrr/multi-container-web-app-server:latest
@@ -40,7 +40,7 @@ jobs:
       - name: Build and push worker image
         uses: docker/build-push-action@v2
         with:
-          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:worker"
+          context: "{{defaultContext}}:worker"
           file: Dockerfile.prod
           push: true
           tags: velfrr/multi-container-web-app-worker:latest
@@ -48,7 +48,7 @@ jobs:
       - name: Build and push nginx image
         uses: docker/build-push-action@v2
         with:
-          context: "${{ github.server_url }}/${{ github.repository }}.git#${{ github.ref }}:nginx"
+          context: "{{defaultContext}}:nginx"
           file: Dockerfile.prod
           push: true
           tags: velfrr/multi-container-web-app-nginx:latest
