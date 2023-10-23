@@ -11,7 +11,7 @@ services:
   client:
     image: velfrr/multi-container-web-app-client
   api:
-    image: velfrr/multi-container-web-app-api
+    image: velfrr/multi-container-web-app-server
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
